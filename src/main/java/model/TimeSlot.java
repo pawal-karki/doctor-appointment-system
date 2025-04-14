@@ -1,9 +1,5 @@
 package model;
-
-<<<<<<< HEAD
 public class TimeSlot {
-
-=======
 import java.sql.Date;
 import java.sql.Time;
 
@@ -55,5 +51,4 @@ public class TimeSlot {
     public void setEndTime(Time endTime) {
         this.endTime = endTime;
     }
->>>>>>> bc68c22803027a53bad9b500f7ead0262621c84f
 }
