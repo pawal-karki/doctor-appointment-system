@@ -15,7 +15,6 @@ public class User {
     }
 
 	public User(int userId, String name, String email, String password, String phone, String role, String imageUrl) {
-		super();
 		this.userId = userId;
 		this.name = name;
 		this.email = email;

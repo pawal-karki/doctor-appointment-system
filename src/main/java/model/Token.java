@@ -6,13 +6,18 @@ public class Token {
     private  int tokenId;
     private int userId;
     private String token;
-    private String tokenType;
+    private TokenType tokenType;
     private LocalDateTime expiresAt;
+    
+    public enum TokenType {
+        REMEMBER_ME,
+        PASSWORD_RESET
+    }
 
     public Token() {
     }
 
-	public Token(int tokenId, int userId, String token, String tokenType, LocalDateTime expiresAt) {
+	public Token(int tokenId, int userId, String token, TokenType tokenType, LocalDateTime expiresAt) {
 		super();
 		this.tokenId = tokenId;
 		this.userId = userId;
@@ -45,11 +50,11 @@ public class Token {
 		this.token = token;
 	}
 
-	public String getTokenType() {
+	public TokenType getTokenType() {
 		return tokenType;
 	}
 
-	public void setTokenType(String tokenType) {
+	public void setTokenType(TokenType tokenType) {
 		this.tokenType = tokenType;
 	}
 
