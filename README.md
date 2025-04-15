@@ -1,6 +1,6 @@
 # 🏥 Doctor Appointment | Hospital Management System
 
-A web-based application that allows patients to book appointments with doctors, manage schedules Built using **Java Servlets**, **JSP**, and **Maven**, the system follows an MVC architecture and supports multi-role access: **Admin**, **Doctor**, and **Patient**.
+A web-based application that allows patients to book appointments with doctors, manage schedules Built using **Java Servlets**, **JSP**, and **Maven**, the system follows an MVC architecture and supports multi-role access: **Admin**, **Patient**
 
 ---
 
