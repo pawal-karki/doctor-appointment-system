@@ -1,5 +1,4 @@
 package model;
-public class TimeSlot {
 import java.sql.Date;
 import java.sql.Time;
 
