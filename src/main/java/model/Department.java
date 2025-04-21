@@ -50,4 +50,13 @@ public class Department implements Serializable {
     public void setImageUrl(String imageUrl) {
         this.imageUrl = imageUrl;
     }
+    
+    // For backward compatibility
+    public int getId() {
+        return departmentId;
+    }
+    
+    public void setId(int id) {
+        this.departmentId = id;
+    }
 }

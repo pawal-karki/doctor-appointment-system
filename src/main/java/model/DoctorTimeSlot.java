@@ -1,7 +1,8 @@
 package model;
 
+import java.io.Serializable;
 
-public class DoctorTimeSlot {
+public class DoctorTimeSlot implements Serializable {
     private int doctorId;
     private int timeslotId;
     private boolean isAvailable;
@@ -39,4 +40,4 @@ public class DoctorTimeSlot {
     public void setAvailable(boolean available) {
         isAvailable = available;
     }
-}
+} 
