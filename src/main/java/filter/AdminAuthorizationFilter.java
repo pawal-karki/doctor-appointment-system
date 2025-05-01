@@ -14,6 +14,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import model.User;
 
+
 /**
  * Authorization filter to protect admin resources
  */
@@ -28,24 +29,24 @@ public class AdminAuthorizationFilter implements Filter {
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
             throws IOException, ServletException {
-        
+
         HttpServletRequest httpRequest = (HttpServletRequest) request;
         HttpServletResponse httpResponse = (HttpServletResponse) response;
-        
+
         String requestURI = httpRequest.getRequestURI();
-        
+
         // Check for public resources that should bypass authentication
         if (isPublicResource(requestURI)) {
             chain.doFilter(request, response);
             return;
         }
-        
+
         HttpSession session = httpRequest.getSession(false);
         boolean isLoggedIn = (session != null && session.getAttribute("user") != null);
-        
+
         if (isLoggedIn) {
             User user = (User) session.getAttribute("user");
-            
+
             // Check if the user is an admin
             if (user.isAdmin()) {
                 // User is an admin, proceed with the request
@@ -60,23 +61,23 @@ public class AdminAuthorizationFilter implements Filter {
             if (httpRequest.getQueryString() != null) {
                 originalURL += "?" + httpRequest.getQueryString();
             }
-            
+
             // Store the URL in the session
             httpRequest.getSession().setAttribute("originalURL", originalURL);
-            
+
             // User is not logged in, redirect to login page
             httpRequest.setAttribute("errorMessage", "You must be logged in as an admin to access this page");
             httpResponse.sendRedirect(httpRequest.getContextPath() + "/login");
         }
     }
-    
+
     private boolean isPublicResource(String requestURI) {
         // Check if the resource is public (CSS, JS, images, etc.)
-        return requestURI.endsWith(".css") || 
-               requestURI.endsWith(".js") || 
-               requestURI.endsWith(".jpg") || 
-               requestURI.endsWith(".jpeg") || 
-               requestURI.endsWith(".png") || 
+        return requestURI.endsWith(".css") ||
+               requestURI.endsWith(".js") ||
+               requestURI.endsWith(".jpg") ||
+               requestURI.endsWith(".jpeg") ||
+               requestURI.endsWith(".png") ||
                requestURI.endsWith(".gif");
     }
 
