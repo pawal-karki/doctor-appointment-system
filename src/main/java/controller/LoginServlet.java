@@ -22,16 +22,16 @@ public class LoginServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
     private static final Logger LOGGER = Logger.getLogger(LoginServlet.class.getName());
     private static final int REMEMBER_ME_EXPIRY_DAYS = 30;
-
+    
     private UserDAO userDAO;
     private TokenDAO tokenDAO;
-
+    
     public void init() {
         userDAO = new UserDAO();
         tokenDAO = new TokenDAO();
     }
-
-    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+    
+    protected void doGet(HttpServletRequest request, HttpServletResponse response) 
             throws ServletException, IOException {
         // Check if user is already logged in via session
         HttpSession session = request.getSession(false);
@@ -40,7 +40,7 @@ public class LoginServlet extends HttpServlet {
             redirectLoggedInUser(request, response, (User) session.getAttribute("user"));
             return;
         }
-
+        
         // Check if user has a remember-me cookie
         String rememberMeToken = CookieUtil.getCookieValue(request, CookieUtil.REMEMBER_ME_COOKIE);
         if (rememberMeToken != null) {
@@ -51,75 +51,75 @@ public class LoginServlet extends HttpServlet {
                 if (user != null) {
                     // Auto login successful
                     LOGGER.log(Level.INFO, "Auto login successful for user ID: {0}", userId);
-
+                    
                     // Create a new session
                     HttpSession newSession = request.getSession(true);
                     newSession.setAttribute("user", user);
-
+                    
                     // Redirect to appropriate page
                     redirectLoggedInUser(request, response, user);
                     return;
                 }
             }
-
+            
             // If auto-login failed, remove invalid cookies
             CookieUtil.removeAuthCookies(response);
         }
-
+        
         // Display login page
         request.getRequestDispatcher("/WEB-INF/views/login.jsp").forward(request, response);
     }
-
-    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+    
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) 
             throws ServletException, IOException {
         String email = request.getParameter("email");
         String password = request.getParameter("password");
         String rememberMe = request.getParameter("rememberMe");
-
+        
         // Validate input
         if (email == null || email.trim().isEmpty() || password == null || password.trim().isEmpty()) {
             request.setAttribute("errorMessage", "Email and password are required");
             request.getRequestDispatcher("/WEB-INF/views/login.jsp").forward(request, response);
             return;
         }
-
+        
         // Sanitize input
         email = ValidationUtil.sanitizeInput(email);
-
+        
         try {
             // Get user by email
             User user = userDAO.getUserByEmail(email);
-
+            
             // Check if user exists and password is correct
             if (user != null && PasswordUtil.verifyPassword(password, user.getPassword())) {
                 // Authentication successful
                 LOGGER.log(Level.INFO, "User logged in: {0}", email);
-
+                
                 // Create a new session
                 HttpSession session = request.getSession(true);
                 session.setAttribute("user", user);
-
+                
                 // Set session timeout
                 if ("on".equals(rememberMe)) {
                     // Handle remember-me functionality
                     handleRememberMe(request, response, user);
-
+                    
                     // Extend session timeout to match cookie (30 days)
                     session.setMaxInactiveInterval(REMEMBER_ME_EXPIRY_DAYS * 24 * 60 * 60);
                 } else {
                     // Standard session timeout (30 minutes)
                     session.setMaxInactiveInterval(30 * 60);
-
+                    
                     // Clear any existing remember-me cookies
                     CookieUtil.removeAuthCookies(response);
                 }
-
+                
                 // Redirect to appropriate page
                 redirectLoggedInUser(request, response, user);
             } else {
                 // Log failed login attempt
                 LOGGER.log(Level.WARNING, "Failed login attempt for email: {0}", email);
-
+                
                 // Show error message
                 request.setAttribute("errorMessage", "Invalid email or password");
                 request.getRequestDispatcher("/WEB-INF/views/login.jsp").forward(request, response);
@@ -130,10 +130,10 @@ public class LoginServlet extends HttpServlet {
             request.getRequestDispatcher("/WEB-INF/views/login.jsp").forward(request, response);
         }
     }
-
+    
     /**
      * Handle "Remember Me" functionality by creating a persistent token and cookies
-     *
+     * 
      * @param request The HTTP request
      * @param response The HTTP response
      * @param user The authenticated user
@@ -141,10 +141,10 @@ public class LoginServlet extends HttpServlet {
     private void handleRememberMe(HttpServletRequest request, HttpServletResponse response, User user) {
         // Generate a secure token
         String token = CookieUtil.generateRememberMeToken();
-
+        
         // Save token to database
         boolean saved = tokenDAO.saveRememberMeToken(user.getUserId(), token, REMEMBER_ME_EXPIRY_DAYS);
-
+        
         if (saved) {
             // Add cookies for auto-login
             CookieUtil.addRememberMeCookie(response, token);
@@ -154,16 +154,16 @@ public class LoginServlet extends HttpServlet {
             LOGGER.log(Level.WARNING, "Failed to save remember-me token for user: {0}", user.getEmail());
         }
     }
-
+    
     /**
      * Redirect a logged-in user to the appropriate page based on role
-     *
+     * 
      * @param request The HTTP request
      * @param response The HTTP response
      * @param user The authenticated user
      * @throws IOException If an I/O error occurs
      */
-    private void redirectLoggedInUser(HttpServletRequest request, HttpServletResponse response, User user)
+    private void redirectLoggedInUser(HttpServletRequest request, HttpServletResponse response, User user) 
             throws IOException {
         if (user.isAdmin()) {
             response.sendRedirect(request.getContextPath() + "/admin/dashboard");
@@ -174,7 +174,7 @@ public class LoginServlet extends HttpServlet {
             if (session != null) {
                 originalURL = (String) session.getAttribute("originalURL");
             }
-
+            
             if (originalURL != null) {
                 session.removeAttribute("originalURL");
                 response.sendRedirect(originalURL);

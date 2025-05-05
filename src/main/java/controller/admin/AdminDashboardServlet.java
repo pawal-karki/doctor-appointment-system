@@ -30,7 +30,7 @@ public class AdminDashboardServlet extends HttpServlet {
     private DoctorDAO doctorDAO;
     private UserDAO userDAO;
     private TimeSlotDAO timeSlotDAO;
-
+    
     public void init() {
         appointmentDAO = new AppointmentDAO();
         departmentDAO = new DepartmentDAO();
@@ -38,35 +38,35 @@ public class AdminDashboardServlet extends HttpServlet {
         userDAO = new UserDAO();
         timeSlotDAO = new TimeSlotDAO();
     }
-
-    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+    
+    protected void doGet(HttpServletRequest request, HttpServletResponse response) 
             throws ServletException, IOException {
         HttpSession session = request.getSession(false);
         User user = (User) session.getAttribute("user");
-
+        
         if (user == null || !user.isAdmin()) {
             response.sendRedirect(request.getContextPath() + "/login");
             return;
         }
-
+        
         // Get dashboard data
         List<Appointment> todayAppointments = appointmentDAO.getTodayAppointments();
         List<Appointment> futureAppointments = appointmentDAO.getFutureAppointments();
         List<Department> departments = departmentDAO.getAllDepartments();
         List<Doctor> doctors = doctorDAO.getAllDoctors();
         List<User> patients = userDAO.getAllPatients();
-
+        
         // Create maps for easy lookup
         Map<Integer, User> patientMap = new HashMap<>();
         for (User patient : patients) {
             patientMap.put(patient.getId(), patient);
         }
-
+        
         Map<Integer, Doctor> doctorMap = new HashMap<>();
         for (Doctor doctor : doctors) {
             doctorMap.put(doctor.getId(), doctor);
         }
-
+        
         // Create timeslot map for appointments
         Map<Integer, TimeSlot> timeSlotsMap = new HashMap<>();
         for (Appointment appointment : todayAppointments) {
@@ -77,7 +77,7 @@ public class AdminDashboardServlet extends HttpServlet {
                 }
             }
         }
-
+        
         for (Appointment appointment : futureAppointments) {
             if (!timeSlotsMap.containsKey(appointment.getTimeSlot())) {
                 TimeSlot timeSlot = timeSlotDAO.getTimeSlotById(appointment.getTimeSlot());
@@ -86,7 +86,7 @@ public class AdminDashboardServlet extends HttpServlet {
                 }
             }
         }
-
+        
         // Set attributes for the JSP
         request.setAttribute("todayAppointments", todayAppointments);
         request.setAttribute("futureAppointments", futureAppointments);
@@ -96,7 +96,7 @@ public class AdminDashboardServlet extends HttpServlet {
         request.setAttribute("patientMap", patientMap);
         request.setAttribute("doctorMap", doctorMap);
         request.setAttribute("timeSlotsMap", timeSlotsMap);
-
+        
         request.getRequestDispatcher("/WEB-INF/views/admin/dashboard.jsp").forward(request, response);
     }
 }

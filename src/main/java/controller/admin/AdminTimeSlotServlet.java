@@ -27,63 +27,63 @@ import model.User;
 public class AdminTimeSlotServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
     private static final Logger LOGGER = Logger.getLogger(AdminTimeSlotServlet.class.getName());
-
+    
     private TimeSlotDAO timeSlotDAO;
     private DoctorDAO doctorDAO;
-
+    
     public void init() {
         timeSlotDAO = new TimeSlotDAO();
         doctorDAO = new DoctorDAO();
     }
-
-    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+    
+    protected void doGet(HttpServletRequest request, HttpServletResponse response) 
             throws ServletException, IOException {
         HttpSession session = request.getSession(false);
         User user = (User) session.getAttribute("user");
-
+        
         if (user == null || !user.isAdmin()) {
             response.sendRedirect(request.getContextPath() + "/login");
             return;
         }
-
+        
         // Get all doctors for the dropdown
         List<Doctor> doctors = doctorDAO.getAllDoctors();
         request.setAttribute("doctors", doctors);
-
+        
         // Create a map of doctors for easy lookup
         Map<Integer, Doctor> doctorMap = new HashMap<>();
         for (Doctor doctor : doctors) {
             doctorMap.put(doctor.getId(), doctor);
         }
         request.setAttribute("doctorMap", doctorMap);
-
+        
         // Get all time slots
         List<TimeSlot> timeSlots = timeSlotDAO.getAllTimeSlots();
         request.setAttribute("timeSlots", timeSlots);
-
+        
         request.getRequestDispatcher("/WEB-INF/views/admin/manage-timeslots.jsp").forward(request, response);
     }
-
-    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+    
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) 
             throws ServletException, IOException {
         HttpSession session = request.getSession(false);
         User user = (User) session.getAttribute("user");
-
+        
         if (user == null || !user.isAdmin()) {
             response.sendRedirect(request.getContextPath() + "/login");
             return;
         }
-
+        
         String action = request.getParameter("action");
-
+        
         if ("delete".equals(action)) {
             deleteTimeSlot(request, response);
         } else {
             generateTimeSlots(request, response);
         }
     }
-
-    private void generateTimeSlots(HttpServletRequest request, HttpServletResponse response)
+    
+    private void generateTimeSlots(HttpServletRequest request, HttpServletResponse response) 
             throws ServletException, IOException {
         try {
             int doctorId = Integer.parseInt(request.getParameter("doctorId"));
@@ -91,18 +91,18 @@ public class AdminTimeSlotServlet extends HttpServlet {
             String startTimeStr = request.getParameter("startTime");
             String endTimeStr = request.getParameter("endTime");
             int slotDuration = Integer.parseInt(request.getParameter("slotDuration"));
-
+            
             // Parse the date
             SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
             Date date = dateFormat.parse(dateStr);
-
+            
             // Parse start and end times
             LocalTime startTime = LocalTime.parse(startTimeStr);
             LocalTime endTime = LocalTime.parse(endTimeStr);
-
+            
             // Generate time slots
             boolean success = timeSlotDAO.generateTimeSlots(doctorId, date, startTime, endTime, slotDuration);
-
+            
             if (success) {
                 request.setAttribute("successMessage", "Time slots generated successfully");
             } else {
@@ -115,17 +115,17 @@ public class AdminTimeSlotServlet extends HttpServlet {
             LOGGER.log(Level.SEVERE, "Error generating time slots", e);
             request.setAttribute("errorMessage", "An error occurred while generating time slots");
         }
-
+        
         doGet(request, response);
     }
-
-    private void deleteTimeSlot(HttpServletRequest request, HttpServletResponse response)
+    
+    private void deleteTimeSlot(HttpServletRequest request, HttpServletResponse response) 
             throws ServletException, IOException {
         try {
             int slotId = Integer.parseInt(request.getParameter("slotId"));
-
+            
             boolean success = timeSlotDAO.deleteTimeSlot(slotId);
-
+            
             if (success) {
                 request.setAttribute("successMessage", "Time slot deleted successfully");
             } else {
@@ -135,7 +135,7 @@ public class AdminTimeSlotServlet extends HttpServlet {
             LOGGER.log(Level.SEVERE, "Error deleting time slot", e);
             request.setAttribute("errorMessage", "An error occurred while deleting the time slot");
         }
-
+        
         doGet(request, response);
     }
-}
+} 

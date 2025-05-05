@@ -173,4 +173,4 @@ public class RememberMeTokenDAO {
             LOGGER.log(Level.SEVERE, "Error closing database resources", e);
         }
     }
-}
+} 
