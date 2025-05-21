@@ -10,6 +10,9 @@ public class User implements Serializable {
     private String phone;
     private String role; // "admin" or "user"
     private String imageUrl;
+    private boolean verified; // Whether user has verified their email
+    private String otpCode; // Verification OTP code
+    private long otpExpiry; // OTP expiration timestamp
     
     public User() {
     }
@@ -21,6 +24,7 @@ public class User implements Serializable {
         this.password = password;
         this.phone = phone;
         this.role = role;
+        this.verified = false;
     }
     
     // Getters and Setters
@@ -78,6 +82,30 @@ public class User implements Serializable {
     
     public void setImageUrl(String imageUrl) {
         this.imageUrl = imageUrl;
+    }
+    
+    public boolean isVerified() {
+        return verified;
+    }
+    
+    public void setVerified(boolean verified) {
+        this.verified = verified;
+    }
+    
+    public String getOtpCode() {
+        return otpCode;
+    }
+    
+    public void setOtpCode(String otpCode) {
+        this.otpCode = otpCode;
+    }
+    
+    public long getOtpExpiry() {
+        return otpExpiry;
+    }
+    
+    public void setOtpExpiry(long otpExpiry) {
+        this.otpExpiry = otpExpiry;
     }
     
     public boolean isAdmin() {

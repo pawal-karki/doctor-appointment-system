@@ -12,6 +12,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import model.User;
+import util.OTPUtil;
 import util.PasswordUtil;
 import util.ValidationUtil;
 
@@ -105,6 +106,10 @@ public class RegisterServlet extends HttpServlet {
         }
         
         try {
+            // Generate OTP for email verification
+            String otpCode = OTPUtil.generateOTP();
+            long otpExpiry = OTPUtil.calculateOTPExpiry();
+            
             // Create new user
             User user = new User();
             user.setName(name);
@@ -112,17 +117,38 @@ public class RegisterServlet extends HttpServlet {
             user.setPassword(PasswordUtil.hashPassword(password));
             user.setPhone(phone);
             user.setRole("user"); // Default role is user
+            user.setVerified(false); // Needs email verification
+            user.setOtpCode(otpCode);
+            user.setOtpExpiry(otpExpiry);
             
             // Save user to database
             boolean success = userDAO.registerUser(user);
             
             if (success) {
-                // Log successful registration
-                LOGGER.log(Level.INFO, "New user registered: {0}", email);
+                // Send OTP email
+                boolean emailSent = OTPUtil.sendOTPEmail(email, name, otpCode);
                 
-                // Set success message and redirect to login page
-                request.getSession().setAttribute("successMessage", "Registration successful! Please login with your credentials.");
-                response.sendRedirect(request.getContextPath() + "/login");
+                if (emailSent) {
+                    LOGGER.log(Level.INFO, "New user registered with OTP: {0}", email);
+                
+                    // Store email in session for verification page
+                    request.getSession().setAttribute("pendingVerificationEmail", email);
+                    
+                    // Redirect to OTP verification page
+                    response.sendRedirect(request.getContextPath() + "/verify-otp");
+                } else {
+                    LOGGER.log(Level.WARNING, "Failed to send OTP email to: {0}", email);
+                    
+                    // Set error message
+                    request.setAttribute("errorMessage", "Registration successful but failed to send verification email. Please contact support.");
+                    
+                    // Preserve form data
+                    request.setAttribute("name", name);
+                    request.setAttribute("email", email);
+                    request.setAttribute("phone", phone);
+                    
+                    request.getRequestDispatcher("/WEB-INF/views/register.jsp").forward(request, response);
+                }
             } else {
                 // Log registration failure
                 LOGGER.log(Level.WARNING, "Failed to register user: {0}", email);

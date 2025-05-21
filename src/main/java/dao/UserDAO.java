@@ -36,6 +36,9 @@ public class UserDAO {
                 user.setPhone(rs.getString("phone"));
                 user.setRole(rs.getString("role"));
                 user.setImageUrl(rs.getString("image_url"));
+                user.setVerified(rs.getBoolean("verified"));
+                user.setOtpCode(rs.getString("otp_code"));
+                user.setOtpExpiry(rs.getLong("otp_expiry"));
             }
         } catch (SQLException e) {
             LOGGER.log(Level.SEVERE, "Error getting user by email", e);
@@ -68,6 +71,9 @@ public class UserDAO {
                 user.setPhone(rs.getString("phone"));
                 user.setRole(rs.getString("role"));
                 user.setImageUrl(rs.getString("image_url"));
+                user.setVerified(rs.getBoolean("verified"));
+                user.setOtpCode(rs.getString("otp_code"));
+                user.setOtpExpiry(rs.getLong("otp_expiry"));
             }
         } catch (SQLException e) {
             LOGGER.log(Level.SEVERE, "Error getting user by ID", e);
@@ -85,7 +91,7 @@ public class UserDAO {
         
         try {
             conn = DBConnection.getConnection();
-            String sql = "INSERT INTO users (name, email, password, phone, role, image_url) VALUES (?, ?, ?, ?, ?, ?)";
+            String sql = "INSERT INTO users (name, email, password, phone, role, image_url, verified, otp_code, otp_expiry) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
             ps = conn.prepareStatement(sql);
             ps.setString(1, user.getName());
             ps.setString(2, user.getEmail());
@@ -93,6 +99,9 @@ public class UserDAO {
             ps.setString(4, user.getPhone());
             ps.setString(5, user.getRole());
             ps.setString(6, user.getImageUrl());
+            ps.setBoolean(7, user.isVerified());
+            ps.setString(8, user.getOtpCode());
+            ps.setLong(9, user.getOtpExpiry());
             
             int rowsAffected = ps.executeUpdate();
             success = rowsAffected > 0;
@@ -160,6 +169,52 @@ public class UserDAO {
         return success;
     }
     
+    public boolean updateOTP(int userId, String otpCode, long otpExpiry) {
+        Connection conn = null;
+        PreparedStatement ps = null;
+        boolean success = false;
+        
+        try {
+            conn = DBConnection.getConnection();
+            String sql = "UPDATE users SET otp_code = ?, otp_expiry = ? WHERE user_id = ?";
+            ps = conn.prepareStatement(sql);
+            ps.setString(1, otpCode);
+            ps.setLong(2, otpExpiry);
+            ps.setInt(3, userId);
+            
+            int rowsAffected = ps.executeUpdate();
+            success = rowsAffected > 0;
+        } catch (SQLException e) {
+            LOGGER.log(Level.SEVERE, "Error updating OTP", e);
+        } finally {
+            closeResources(null, ps, conn);
+        }
+        
+        return success;
+    }
+    
+    public boolean verifyUser(int userId) {
+        Connection conn = null;
+        PreparedStatement ps = null;
+        boolean success = false;
+        
+        try {
+            conn = DBConnection.getConnection();
+            String sql = "UPDATE users SET verified = true, otp_code = NULL, otp_expiry = 0 WHERE user_id = ?";
+            ps = conn.prepareStatement(sql);
+            ps.setInt(1, userId);
+            
+            int rowsAffected = ps.executeUpdate();
+            success = rowsAffected > 0;
+        } catch (SQLException e) {
+            LOGGER.log(Level.SEVERE, "Error verifying user", e);
+        } finally {
+            closeResources(null, ps, conn);
+        }
+        
+        return success;
+    }
+    
     public List<User> getAllPatients() {
         List<User> patients = new ArrayList<>();
         Connection conn = null;
@@ -181,6 +236,9 @@ public class UserDAO {
                 user.setPhone(rs.getString("phone"));
                 user.setRole(rs.getString("role"));
                 user.setImageUrl(rs.getString("image_url"));
+                user.setVerified(rs.getBoolean("verified"));
+                user.setOtpCode(rs.getString("otp_code"));
+                user.setOtpExpiry(rs.getLong("otp_expiry"));
                 patients.add(user);
             }
         } catch (SQLException e) {

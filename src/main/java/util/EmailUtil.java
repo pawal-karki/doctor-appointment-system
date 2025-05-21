@@ -23,7 +23,7 @@ public class EmailUtil {
     private static final String SMTP_HOST = "smtp.gmail.com";
     private static final String SMTP_PORT = "587";
     private static final String EMAIL_USERNAME = "np05cp4a230099@iic.edu.np"; // Replace with actual email
-    private static final String EMAIL_PASSWORD = "rszw sfti bxai forc"; // Replace with app password
+    private static final String EMAIL_PASSWORD = "hwdd qxpp zqih ktlw"; // Replace with app password
     private static final String EMAIL_FROM = "np05cp4a230099@iic.edu.np";
     
     /**
@@ -41,6 +41,7 @@ public class EmailUtil {
             props.put("mail.smtp.port", SMTP_PORT);
             props.put("mail.smtp.auth", "true");
             props.put("mail.smtp.starttls.enable", "true");
+
             
             // Create session with authentication
             Session session = Session.getInstance(props, new Authenticator() {

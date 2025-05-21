@@ -14,6 +14,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import model.User;
 import util.CookieUtil;
+import util.OTPUtil;
 import util.PasswordUtil;
 import util.ValidationUtil;
 
@@ -92,6 +93,47 @@ public class LoginServlet extends HttpServlet {
             
             // Check if user exists and password is correct
             if (user != null && PasswordUtil.verifyPassword(password, user.getPassword())) {
+                // Check if user is verified
+                if (!user.isVerified()) {
+                    LOGGER.log(Level.INFO, "Unverified login attempt: {0}", email);
+                    
+                    // Generate new OTP for verification
+                    String otpCode = OTPUtil.generateOTP();
+                    long otpExpiry = OTPUtil.calculateOTPExpiry();
+                    
+                    // Update user with new OTP
+                    boolean updated = userDAO.updateOTP(user.getUserId(), otpCode, otpExpiry);
+                    
+                    if (updated) {
+                        // Send OTP email
+                        boolean sent = OTPUtil.sendOTPEmail(user.getEmail(), user.getName(), otpCode);
+                        
+                        if (sent) {
+                            LOGGER.log(Level.INFO, "Verification email sent to: {0}", email);
+                            
+                            // Store email in session for verification page
+                            request.getSession().setAttribute("pendingVerificationEmail", email);
+                            
+                            // Set error message and forward to verification page
+                            request.getSession().setAttribute("warningMessage", 
+                                "Your email is not verified. A verification code has been sent to your email.");
+                            response.sendRedirect(request.getContextPath() + "/verify-otp");
+                        } else {
+                            LOGGER.log(Level.WARNING, "Failed to send verification email to: {0}", email);
+                            request.setAttribute("errorMessage", 
+                                "Your email is not verified, and we couldn't send a verification email. Please contact support.");
+                            request.getRequestDispatcher("/WEB-INF/views/login.jsp").forward(request, response);
+                        }
+                    } else {
+                        LOGGER.log(Level.WARNING, "Failed to update OTP for user: {0}", email);
+                        request.setAttribute("errorMessage", 
+                            "Your email is not verified. Please try again or contact support.");
+                        request.getRequestDispatcher("/WEB-INF/views/login.jsp").forward(request, response);
+                    }
+                    
+                    return;
+                }
+                
                 // Authentication successful
                 LOGGER.log(Level.INFO, "User logged in: {0}", email);
                 
