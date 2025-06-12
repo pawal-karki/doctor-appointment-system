@@ -15,7 +15,9 @@ A web-based application that allows patients to book appointments with doctors, 
 
 ---
 
+
 ## 📁 Project Structure
+
 
 ```plaintext
 javadoctorappointmentsystem/
@@ -45,3 +47,10 @@ javadoctorappointmentsystem/
 ├── test/                         # Test cases
 ├── target/                       # Build output
 └── pom.xml                       # Maven config file
+```
+#Project Images
+![Image](https://github.com/user-attachments/assets/08a936eb-10c7-493b-8878-29b454d998e9)
+![Image](https://github.com/user-attachments/assets/cbb517e7-9dd0-47b1-8edf-a4ccf19bff4a)
+![Image](https://github.com/user-attachments/assets/740f2c8a-66c9-4411-8169-ee4e9e367c7a)
+![Image](https://github.com/user-attachments/assets/a833fd99-dde6-4455-997e-d400bf63ee00)
+![Image](https://github.com/user-attachments/assets/dd47a429-6e79-48ce-99a0-d810961f14a1)
